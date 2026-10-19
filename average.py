@@ -1,28 +1,29 @@
+from clean import clean
 
-def average(weather):
-    summaries_list = []
 
+def average(values):
+    if not values:
+        raise ValueError("average requires at least one value")
+
+    total = 0
+    for value in values:
+        total += value
+    return total / len(values)
+
+
+def weekly_summary(weather):
+    summaries = {}
     for city in sorted(weather):
-        temperature_list = []
-        temperatures = weather[city]["temp"]
+        temperatures = clean(weather[city]["temp"])
         rainfall = weather[city]["rain"]
 
+        highest = temperatures[0]
+        lowest = temperatures[0]
         for temperature in temperatures:
-            if temperature > -50:
-                temperature_list.append(temperature)
-
-        temperature_total = 0
-        for temperature in temperature_list:
-            temperature_total += temperature
-        avg_temp = temperature_total / len(temperature_list)
-
-        max_temp = temperature_list[0]
-        min_temp = temperature_list[0]
-        for temperature in temperature_list:
-            if temperature > max_temp:
-                max_temp = temperature
-            if temperature < min_temp:
-                min_temp = temperature
+            if temperature > highest:
+                highest = temperature
+            if temperature < lowest:
+                lowest = temperature
 
         total_rain = 0
         rainy_days = 0
@@ -31,7 +32,11 @@ def average(weather):
             if rain_amount > 0:
                 rainy_days += 1
 
-        summary = (city, avg_temp, max_temp, min_temp, total_rain, rainy_days)
-        summaries_list.append(summary)
-
-    return summaries_list
+        summaries[city] = (
+            average(temperatures),
+            highest,
+            lowest,
+            total_rain,
+            rainy_days,
+        )
+    return summaries
